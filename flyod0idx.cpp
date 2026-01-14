@@ -15,7 +15,7 @@ void solve(){
         am[a][b]=w;
     }
     
-    for(int k=1; k<=n; k++){
+    for(int k=0; k<n; k++){
         for(int i=0; i<n; i++){
             for(int j=0; j<n; j++)
                 am[i][j] = min(am[i][j], am[i][k] + am[k][j]);
