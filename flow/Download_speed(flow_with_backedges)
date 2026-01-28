@@ -1,0 +1,94 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const ll INF = 1e16;
+
+vector<vector<pair<ll,ll>>> al;
+vector<vector<ll>> resl;
+vector<vector<ll>> cap;
+vector<ll> parent;
+ll s,t;
+bool ek_bfs(){
+    fill(parent.begin(), parent.end(), -1);
+    queue<ll> q;
+    q.push(s);
+    parent[s] = s;
+    while(!q.empty()){
+        ll u  = q.front(); q.pop();
+        for(auto v: resl[u]){
+            ll w = cap[u][v];
+            if(parent[v]==-1 && w){
+                parent[v] = u;
+                q.push(v);
+            }
+        }
+    }
+    if(parent[t]==-1) return false;
+    return true;
+}
+ll augment(){
+    ll mflow = 0;
+    while(ek_bfs()){
+        ll cflow = INF;
+        for(int i=t; i!=s; i=parent[i]){
+            //cout<<parent[i]<<" "<<i<<" "<<cap[parent[i]][i]<<"\n";
+            cflow = min(cflow, cap[parent[i]][i]);
+        }
+        if(!cflow || cflow==INF) break;
+        for(int i=t; i!=s; i=parent[i]){
+            cap[i][parent[i]] += cflow;
+            cap[parent[i]][i] -= cflow;
+        }
+        mflow += cflow;
+    }
+    return mflow;
+}
+
+ll edge_flow(ll u, ll v){
+    return cap[v][u];
+}
+
+void solve(){
+    int n,m;
+    cin>>n>>m;
+    al.resize(2*n+1);
+    resl.resize(2*n+1);
+    cap.assign(2*n+1, vector<ll>(2*n+1,0));
+    parent.resize(2*n+1);
+    for(int i=0; i<m; i++){
+        int a,b,w;
+        cin>>a>>b>>w;
+        if(cap[b][a]){
+                al[a].push_back({n+a,w});
+                resl[a].push_back(n+a);
+                resl[n+a].push_back(a);
+
+                al[n+a].push_back({b,w});
+                resl[n+a].push_back(b);
+                resl[b].push_back(n+a);
+                cap[a][n+a] += w; cap[n+a][b] += w;
+            }
+        else{
+                al[a].push_back({b,w});
+                resl[a].push_back(b);
+                resl[b].push_back(a);
+            cap[a][b] += w; cap[b][a] = 0;
+        }
+        
+    }
+    s=1, t=n;
+    cout<<augment()<<"\n";
+    // for(int i=1; i<=n; i++){
+    //     for(auto pr: al[i]){
+    //         ll j = pr.first; ll w = pr.second;
+    //         cout<<i<<' '<<j<<' '<<edge_flow(i,j)<<'/'<<w<<'\n';
+    //     }
+    // }
+}
+
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    solve();
+    return 0;
+}
